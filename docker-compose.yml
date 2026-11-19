@@ -1,0 +1,17 @@
+# SQL Server for non-Windows machines (LocalDB is Windows-only).
+#   docker compose up -d
+# then run the API with:
+#   ConnectionStrings__DefaultConnection="Server=localhost,1433;Database=BmsDb;User Id=sa;Password=Your_strong_Passw0rd;TrustServerCertificate=True" dotnet run --project BMS.API
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: bms-sql
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Your_strong_Passw0rd"
+    ports:
+      - "1433:1433"
+    volumes:
+      - bms-sql-data:/var/opt/mssql
+volumes:
+  bms-sql-data:

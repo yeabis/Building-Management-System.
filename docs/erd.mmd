@@ -1,0 +1,105 @@
+erDiagram
+    Building ||--o{ Floor : "has"
+    Floor ||--o{ Unit : "has"
+    Unit ||--o{ Lease : "leased via"
+    Tenant ||--o{ Lease : "signs"
+    Tenant ||--o{ LegalDocument : "uploads"
+    Lease ||--o{ Invoice : "billed by"
+    Invoice ||--o{ Payment : "settled by"
+    AppUser ||--o{ Notification : "receives"
+
+    Building {
+        int Id PK
+        string Name
+        string Address
+    }
+    Floor {
+        int Id PK
+        int BuildingId FK
+        int FloorNumber "unique per building"
+        string Name
+    }
+    Unit {
+        int Id PK
+        int FloorId FK
+        int FloorNumber
+        string UnitNumber "unique, indexed"
+        string UnitType "Shop | Office"
+        decimal AreaSqMeters
+        decimal MonthlyRent
+        string Status "indexed with floor"
+        string Description
+        bool IsDeleted "soft delete"
+    }
+    Tenant {
+        int Id PK
+        string OrganizationName
+        string TinNumber "unique, indexed"
+        string Phone
+        string BusinessType
+        string ContactPersonName
+        string ContactEmail
+        bool IsActive
+        bool IsDeleted "soft delete"
+    }
+    LegalDocument {
+        int Id PK
+        int TenantId FK
+        string DocumentType
+        string FileName
+        string FilePath
+        datetime UploadedAt
+        date ExpiryDate "indexed"
+        bool IsVerified
+    }
+    Lease {
+        int Id PK
+        int UnitId FK
+        int TenantId FK
+        date StartDate
+        date EndDate
+        decimal MonthlyRent
+        decimal DepositAmount
+        string Status "indexed, one Active per unit"
+        string TerminationReason
+        bool IsDeleted "soft delete"
+    }
+    Invoice {
+        int Id PK
+        int LeaseId FK
+        string InvoiceNumber "unique"
+        decimal AmountDue
+        date DueDate "indexed"
+        date IssueDate
+        string Status "indexed"
+        int PeriodMonth
+        int PeriodYear "unique with Lease+Month"
+        binary RowVersion "concurrency"
+    }
+    Payment {
+        int Id PK
+        int InvoiceId FK
+        decimal AmountPaid
+        date PaymentDate "indexed"
+        string PaymentMethod
+        string ReferenceNumber
+        string Notes
+    }
+    Notification {
+        int Id PK
+        string UserId FK
+        string Title
+        string Message
+        string NotificationType
+        bool IsRead
+        string ReferenceKey "de-duplication"
+        datetime CreatedAt
+    }
+    AppUser {
+        string Id PK
+        string FullName
+        string Email
+        bool IsActive
+        string RefreshTokenHash
+        datetime RefreshTokenExpiresAt
+    }
